@@ -22,34 +22,43 @@ func New(dbUser, dbPassword, dbHost, dbPort, dbName string) (*Mysql, error) {
 
 	db, err := sql.Open(dbDriver, dsn)
 	if err != nil {
-		log.Println("mysqldb connection failure: %v", err)
+		log.Printf("mysqldb connection failure: %v\n", err)
 		return nil, err
 	}
 
 	err = db.Ping()
 	if err != nil {
-		log.Println("mysqldb ping failure: %v", err)
+		log.Printf("mysqldb ping failure: %v\n", err)
 		return nil, err
 	}
 
 	return &Mysql{db: db}, nil
 }
 
-func (this Mysql) Close() {
+func (this *Mysql) Close() {
 	err := this.db.Close()
 	if err != nil {
-		log.Println("mysqldb close failure: %v", err)
+		log.Printf("mysqldb close failure: %v\n", err)
 	}
 }
 
-func (this Mysql) InsertUser(userName string) error {
-	this.db.Exec("INSERT...")
-
+func (this *Mysql) InsertUser(userName string) error {
+	_, err := this.db.Exec(
+		"INSERT INTO users(name) VALUES (?)",
+		userName,
+	)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
-func (this Mysql) SelectSingleUser(userName string) (string, error) {
-	this.db.Exec("SELECT...")
+func (this *Mysql) SelectSingleUser(userName string) (string, error) {
+	_, err := this.db.Exec("SELECT...")
+
+	if err != nil {
+		return "", err
+	}
 
 	return "user", nil
 }
